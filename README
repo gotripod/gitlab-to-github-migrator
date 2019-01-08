@@ -1,2 +1,8 @@
 GitLab to GitHub Migrator
-===
+=====
+
+We do not provide any guarantees or warranty for the behaviour of this script. USE AT YOUR OWN RISK!
+
+1. Amend migrate.rb to include the relevant config at the top of the file
+2. Run `bundle install`
+3. Run `ruby migrate.rb`

@@ -15,6 +15,13 @@ Gitlab.configure do |config|
   config.private_token  = GL_PRIVATE_TOKEN
 end
 
+# Create an authorised URL to the repo on GL using the GL private token
+def gl_authed_uri(gl_project)
+  gl_repo_uri = URI.parse(gl_project.http_url_to_repo)
+  
+  "http://oauth2:#{GL_PRIVATE_TOKEN}@#{GL_SERVER}#{gl_repo_uri.path}"
+end
+
 gh_client = Octokit::Client.new(:access_token => GH_PRIVATE_TOKEN)
 
 # Fetch a list of all Gitlab projects
@@ -24,10 +31,6 @@ puts "Found #{gl_projects.length} projects."
 # Loop through each GL project
 gl_projects.each do |gl_project|
   puts "Importing #{gl_project.name} from #{gl_project.http_url_to_repo}..."
-
-  # Create an authorised URL to the repo on GL using the GL private token
-  gl_repo_uri = URI.parse(gl_project.http_url_to_repo)
-  gl_authed_uri = "http://oauth2:#{GL_PRIVATE_TOKEN}@#{GL_SERVER}#{gl_repo_uri.path}"
 
   # The repo to import to on GH
   destination_repo = "#{GH_ORG_NAME}/#{gl_project.name}"
@@ -55,7 +58,7 @@ gl_projects.each do |gl_project|
   # Start the import to GH!
   gh_client.start_source_import(
     destination_repo,
-    gl_authed_uri,
+    gl_authed_uri(gl_project),
     vcs: "git",
     accept: Octokit::Preview::PREVIEW_TYPES[:source_imports]
   )
