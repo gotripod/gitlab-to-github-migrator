@@ -14,10 +14,9 @@ PROGRESS_FILE_NAME = "./progress.txt"
 
 # Read or create progress file
 if File.exist?(PROGRESS_FILE_NAME)
-  progress_file = File.open(PROGRESS_FILE_NAME,"a+")
   completed_repositories = File.open(PROGRESS_FILE_NAME).readlines.map(&:strip)
 else
-  progress_file = File.new(PROGRESS_FILE_NAME, "a+")
+  File.write(PROGRESS_FILE_NAME, "")
   completed_repositories = []
 end
 
@@ -94,7 +93,7 @@ gl_projects.each do |gl_project|
   end
 
   # Log this project as imported
-  progress_file.puts gl_project.http_url_to_repo
+  File.write(PROGRESS_FILE_NAME, gl_project.http_url_to_repo, mode: 'a')
 
   # All done!
   puts "Finished import of #{gl_project.name}!"
