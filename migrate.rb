@@ -15,7 +15,7 @@ PROGRESS_FILE_NAME = "./progress.txt"
 # Read or create progress file
 if File.exist?(PROGRESS_FILE_NAME)
   progress_file = File.open(PROGRESS_FILE_NAME,"a+")
-  completed_repositories = File.open(PROGRESS_FILE_NAME).readlines
+  completed_repositories = File.open(PROGRESS_FILE_NAME).readlines.map(&:strip)
 else
   progress_file = File.new(PROGRESS_FILE_NAME, "a+")
   completed_repositories = []
@@ -42,11 +42,11 @@ puts "Found #{gl_projects.length} projects."
 
 # Loop through each GL project
 gl_projects.each do |gl_project|
-  if completed_repositories.include?(gl_project.id)
-    puts "Skipping #{gl_project.name} as it already exists in the progress file."
-   break
+  if completed_repositories.include?(gl_project.http_url_to_repo)
+    puts "Skipping #{gl_project.name} (id: #{gl_project.id}) as it already exists in the progress file."
+    next
   else
-    puts "Importing #{gl_project.name} from #{gl_project.http_url_to_repo}..."
+    puts "Importing #{gl_project.name} (id: #{gl_project.id}) from #{gl_project.http_url_to_repo}..."
   end
 
   # The repo to import to on GH
@@ -94,8 +94,9 @@ gl_projects.each do |gl_project|
   end
 
   # Log this project as imported
-  progress_file.puts gl_project.id
+  progress_file.puts gl_project.http_url_to_repo
 
   # All done!
   puts "Finished import of #{gl_project.name}!"
+  puts "--------------------------------------\n"
 end
