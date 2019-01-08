@@ -49,7 +49,7 @@ gl_projects.each do |gl_project|
   end
 
   # The repo to import to on GH
-  destination_repo = "#{GH_ORG_NAME}/#{gl_project.name}"
+  destination_repo = "#{GH_ORG_NAME}/#{gl_project.name.gsub(' ', '-')}"
   
   # Ensure the GL user is a member of the project we want to export
   begin Gitlab.add_team_member(gl_project.id, 4, 40)
