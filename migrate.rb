@@ -3,11 +3,23 @@ require 'octokit'
 require 'octopoller'
 require 'uri'
 
+# Enter your details/credentials here
 GL_SERVER = ""
 GL_PRIVATE_TOKEN = ""
-GL_ENDPOINT = "http://#{GL_SERVER}/api/v4"
 GH_PRIVATE_TOKEN = ""
 GH_ORG_NAME = ""
+
+GL_ENDPOINT = "http://#{GL_SERVER}/api/v4"
+PROGRESS_FILE_NAME = "./progress.txt"
+
+# Read or create progress file
+if File.exist?(PROGRESS_FILE_NAME)
+  progress_file = File.open(PROGRESS_FILE_NAME,"a+")
+  completed_repositories = File.open(PROGRESS_FILE_NAME).readlines
+else
+  progress_file = File.new(PROGRESS_FILE_NAME, "a+")
+  completed_repositories = []
+end
 
 # Instantiate/configure GL and GH clients
 Gitlab.configure do |config|
@@ -30,7 +42,12 @@ puts "Found #{gl_projects.length} projects."
 
 # Loop through each GL project
 gl_projects.each do |gl_project|
-  puts "Importing #{gl_project.name} from #{gl_project.http_url_to_repo}..."
+  if completed_repositories.include?(gl_project.id)
+    puts "Skipping #{gl_project.name} as it already exists in the progress file."
+   break
+  else
+    puts "Importing #{gl_project.name} from #{gl_project.http_url_to_repo}..."
+  end
 
   # The repo to import to on GH
   destination_repo = "#{GH_ORG_NAME}/#{gl_project.name}"
@@ -75,6 +92,9 @@ gl_projects.each do |gl_project|
       :re_poll
     end 
   end
+
+  # Log this project as imported
+  progress_file.puts gl_project.id
 
   # All done!
   puts "Finished import of #{gl_project.name}!"
