@@ -93,7 +93,7 @@ gl_projects.each do |gl_project|
   end
 
   # Log this project as imported
-  File.write(PROGRESS_FILE_NAME, gl_project.http_url_to_repo, mode: 'a')
+  File.write(PROGRESS_FILE_NAME, gl_project.http_url_to_repo + "\n", mode: 'a')
 
   # All done!
   puts "Finished import of #{gl_project.name}!"
